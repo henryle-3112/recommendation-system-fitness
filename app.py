@@ -5,11 +5,15 @@ from scipy import sparse
 
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:12345@localhost/greenwich_fitness"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 class CoachRate(db.Model):
@@ -198,6 +202,7 @@ class CF(object):
 # write api
 
 @app.route("/recommend-coach/<user_id>")
+@cross_origin()
 def recommend_coach_by_user_id(user_id):
     # check user existed in rating table or not
     selected_user = CoachRate.query.filter_by(user_profile_id=user_id).first()
@@ -217,12 +222,12 @@ def recommend_coach_by_user_id(user_id):
     recommended_items_json_list = []
     if len(recommended_items_id) == 0:
         return jsonify(recommended_items_json_list)
-    for i in range(len(recommended_items_id)):
-        each_coach = Coach.query.filter_by(
-            id=recommended_items_id[i]).first()
-        recommended_items_json_list.append(each_coach.to_json())
-        print("coach id: %d" % each_coach.id)
-    return jsonify(recommended_items_json_list)
+    # for i in range(len(recommended_items_id)):
+    #     each_coach = Coach.query.filter_by(
+    #         id=recommended_items_id[i]).first()
+    #     recommended_items_json_list.append(each_coach.to_json())
+    #     print("coach id: %d" % each_coach.id)
+    return jsonify(recommended_items_id)
 
 
 if __name__ == "__main__":
